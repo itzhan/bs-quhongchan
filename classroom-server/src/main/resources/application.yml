@@ -1,0 +1,52 @@
+server:
+  port: 8089
+  servlet:
+    context-path: /api
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/classroom_db?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: root
+    password: ab123168
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Shanghai
+
+mybatis-plus:
+  mapper-locations: classpath:mapper/**/*.xml
+  type-aliases-package: com.classroom.entity
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+# JWT配置
+jwt:
+  secret: ClassroomManagementSystemSecretKey2025ForJWTTokenGeneration
+  expiration: 86400000
+  header: Authorization
+  prefix: "Bearer "
+
+# 文件上传配置
+upload:
+  path: ./uploads/
+  allowed-types: doc,docx,xls,xlsx,ppt,pptx,pdf,txt,zip,rar,jpg,jpeg,png,gif
+
+logging:
+  level:
+    com.classroom: debug
+    org.springframework.security: info
+  file:
+    name: logs/classroom.log
+  pattern:
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
