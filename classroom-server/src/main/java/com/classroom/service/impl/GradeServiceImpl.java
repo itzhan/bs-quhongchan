@@ -26,6 +26,8 @@ public class GradeServiceImpl extends ServiceImpl<GradeMapper, Grade> implements
     private final SubmissionMapper submissionMapper;
     private final CourseMemberMapper courseMemberMapper;
 
+    private final SysUserMapper sysUserMapper;
+
     @Override
     public void calculateAllGrades(Long courseId) {
         List<CourseMember> members = courseMemberMapper.selectList(
@@ -107,7 +109,20 @@ public class GradeServiceImpl extends ServiceImpl<GradeMapper, Grade> implements
         if (courseId != null) wrapper.eq(Grade::getCourseId, courseId);
         if (studentId != null) wrapper.eq(Grade::getStudentId, studentId);
         wrapper.orderByDesc(Grade::getTotalScore);
-        return page(new Page<>(page, size), wrapper);
+        IPage<Grade> result = page(new Page<>(page, size), wrapper);
+        // 填充学生和课程信息
+        for (Grade g : result.getRecords()) {
+            SysUser student = sysUserMapper.selectById(g.getStudentId());
+            if (student != null) {
+                g.setStudentName(student.getRealName());
+                g.setStudentNo(student.getUsername());
+            }
+            Course course = courseMapper.selectById(g.getCourseId());
+            if (course != null) {
+                g.setCourseName(course.getCourseName());
+            }
+        }
+        return result;
     }
 
     @Override

@@ -16,4 +16,13 @@ public interface CourseMemberMapper extends BaseMapper<CourseMember> {
             "WHERE cm.course_id = #{courseId} AND cm.status = 1 " +
             "ORDER BY cm.join_time ASC")
     IPage<CourseMember> selectMembersWithName(Page<CourseMember> page, @Param("courseId") Long courseId);
+
+    @Select("<script>" +
+            "SELECT cm.*, u.real_name AS student_name, u.username AS student_no " +
+            "FROM course_member cm LEFT JOIN sys_user u ON cm.student_id = u.id " +
+            "WHERE cm.deleted = 0 AND cm.status = 1 " +
+            "<if test='courseId != null'> AND cm.course_id = #{courseId}</if> " +
+            "ORDER BY cm.create_time DESC" +
+            "</script>")
+    IPage<CourseMember> selectPageWithName(Page<CourseMember> page, @Param("courseId") Long courseId);
 }

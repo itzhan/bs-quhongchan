@@ -158,3 +158,7 @@ export const uploadFile = (data: FormData) =>
   http.request<Result>("post", "/api/file/upload", { data }, {
     headers: { "Content-Type": "multipart/form-data" }
   });
+
+// ========== 仪表盘统计 ==========
+export const getDashboardStats = () =>
+  http.request<Result>("get", "/api/dashboard/stats");

@@ -22,4 +22,18 @@ public interface CheckinRecordMapper extends BaseMapper<CheckinRecord> {
     IPage<CheckinRecord> selectRecordsWithName(Page<CheckinRecord> page,
                                                 @Param("checkinId") Long checkinId,
                                                 @Param("status") Integer status);
+
+    @Select("<script>" +
+            "SELECT cr.*, u.real_name AS student_name, u.username AS student_no " +
+            "FROM checkin_record cr LEFT JOIN sys_user u ON cr.student_id = u.id " +
+            "WHERE cr.deleted = 0 " +
+            "<if test='checkinId != null'> AND cr.checkin_id = #{checkinId}</if> " +
+            "<if test='courseId != null'> AND cr.course_id = #{courseId}</if> " +
+            "<if test='status != null'> AND cr.status = #{status}</if> " +
+            "ORDER BY cr.create_time DESC" +
+            "</script>")
+    IPage<CheckinRecord> selectPageWithFilters(Page<CheckinRecord> page,
+                                                @Param("checkinId") Long checkinId,
+                                                @Param("courseId") Long courseId,
+                                                @Param("status") Integer status);
 }

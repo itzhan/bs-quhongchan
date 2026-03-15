@@ -1,9 +1,26 @@
 <script setup lang="ts">
+import { ref, computed } from "vue";
 import { useColumns } from "./columns";
-import { useRenderIcon } from "@/components/ReIcon/src/hooks";
+import Empty from "./empty.svg?component";
 
-const { loading, columns, dataList, pagination, Empty, onCurrentChange } =
-  useColumns();
+const props = defineProps({
+  tableData: {
+    type: Array as () => any[],
+    default: () => []
+  }
+});
+
+const { loading, columns, pagination } = useColumns(props);
+
+const currentPage = ref(1);
+const pagedData = computed(() => {
+  const start = (currentPage.value - 1) * pagination.pageSize;
+  return props.tableData.slice(start, start + pagination.pageSize);
+});
+
+function onCurrentChange(page: number) {
+  currentPage.value = page;
+}
 </script>
 
 <template>
@@ -13,31 +30,17 @@ const { loading, columns, dataList, pagination, Empty, onCurrentChange } =
     showOverflowTooltip
     :loading="loading"
     :loading-config="{ background: 'transparent' }"
-    :data="
-      dataList.slice(
-        (pagination.currentPage - 1) * pagination.pageSize,
-        pagination.currentPage * pagination.pageSize
-      )
-    "
+    :data="pagedData"
     :columns="columns"
-    :pagination="pagination"
+    :pagination="{ ...pagination, total: tableData.length, currentPage }"
     @page-current-change="onCurrentChange"
   >
     <template #empty>
-      <el-empty description="暂无数据" :image-size="60">
+      <el-empty description="暂无课程数据" :image-size="60">
         <template #image>
           <Empty />
         </template>
       </el-empty>
-    </template>
-    <template #operation="{ row }">
-      <el-button
-        plain
-        circle
-        size="small"
-        :title="`查看序号为${row.id}的详情`"
-        :icon="useRenderIcon('ri:search-line')"
-      />
     </template>
   </pure-table>
 </template>

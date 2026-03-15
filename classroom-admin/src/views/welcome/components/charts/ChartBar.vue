@@ -3,11 +3,15 @@ import { useDark, useECharts } from "@pureadmin/utils";
 import { type PropType, ref, computed, watch, nextTick } from "vue";
 
 const props = defineProps({
-  requireData: {
+  courseNames: {
+    type: Array as PropType<Array<string>>,
+    default: () => []
+  },
+  studentData: {
     type: Array as PropType<Array<number>>,
     default: () => []
   },
-  questionData: {
+  assignmentData: {
     type: Array as PropType<Array<number>>,
     default: () => []
   }
@@ -25,10 +29,10 @@ const { setOptions } = useECharts(chartRef, {
 watch(
   () => props,
   async () => {
-    await nextTick(); // 确保DOM更新完成后再执行
+    await nextTick();
     setOptions({
       container: ".bar-card",
-      color: ["#41b6ff", "#e85f33"],
+      color: ["#41b6ff", "#26ce83"],
       tooltip: {
         trigger: "axis",
         axisPointer: {
@@ -38,10 +42,11 @@ watch(
       grid: {
         top: "20px",
         left: "50px",
-        right: 0
+        right: 0,
+        bottom: "40px"
       },
       legend: {
-        data: ["需求人数", "提问数量"],
+        data: ["学生人数", "作业数量"],
         textStyle: {
           color: "#606266",
           fontSize: "0.875rem"
@@ -51,9 +56,12 @@ watch(
       xAxis: [
         {
           type: "category",
-          data: ["周一", "周二", "周三", "周四", "周五", "周六", "周日"],
+          data: props.courseNames,
           axisLabel: {
-            fontSize: "0.875rem"
+            fontSize: "0.75rem",
+            rotate: props.courseNames.length > 5 ? 20 : 0,
+            overflow: "truncate",
+            width: 60
           },
           axisPointer: {
             type: "shadow"
@@ -67,31 +75,30 @@ watch(
             fontSize: "0.875rem"
           },
           splitLine: {
-            show: false // 去网格线
+            show: false
           }
-          // name: "单位: 个"
         }
       ],
       series: [
         {
-          name: "需求人数",
+          name: "学生人数",
           type: "bar",
           barWidth: 10,
           itemStyle: {
             color: "#41b6ff",
             borderRadius: [10, 10, 0, 0]
           },
-          data: props.requireData
+          data: props.studentData
         },
         {
-          name: "提问数量",
+          name: "作业数量",
           type: "bar",
           barWidth: 10,
           itemStyle: {
-            color: "#e86033ce",
+            color: "#26ce83",
             borderRadius: [10, 10, 0, 0]
           },
-          data: props.questionData
+          data: props.assignmentData
         }
       ]
     });

@@ -1,104 +1,64 @@
-import { tableData } from "../../data";
-import { delay } from "@pureadmin/utils";
-import { ref, onMounted, reactive } from "vue";
+import { ref, type PropType } from "vue";
 import type { PaginationProps } from "@pureadmin/table";
-import ThumbUp from "~icons/ri/thumb-up-line";
-import Hearts from "~icons/ri/hearts-line";
 import Empty from "./empty.svg?component";
 
-export function useColumns() {
-  const dataList = ref([]);
-  const loading = ref(true);
+export function useColumns(props: { tableData: any[] }) {
+  const loading = ref(false);
   const columns: TableColumnList = [
     {
       sortable: true,
-      label: "序号",
-      prop: "id"
+      label: "课程名称",
+      prop: "courseName",
+      minWidth: 120
     },
     {
       sortable: true,
-      label: "需求人数",
-      prop: "requiredNumber",
-      filterMultiple: false,
-      filterClassName: "pure-table-filter",
-      filters: [
-        { text: "≥16000", value: "more" },
-        { text: "<16000", value: "less" }
-      ],
-      filterMethod: (value, { requiredNumber }) => {
-        return value === "more"
-          ? requiredNumber >= 16000
-          : requiredNumber < 16000;
+      label: "授课教师",
+      prop: "teacherName",
+      minWidth: 80
+    },
+    {
+      sortable: true,
+      label: "学生人数",
+      prop: "studentCount",
+      minWidth: 80
+    },
+    {
+      sortable: true,
+      label: "课程状态",
+      prop: "status",
+      minWidth: 80,
+      cellRenderer: ({ row }) => {
+        const statusMap: Record<number, { text: string; type: string }> = {
+          0: { text: "已结课", type: "info" },
+          1: { text: "进行中", type: "success" },
+          2: { text: "未开始", type: "warning" }
+        };
+        const s = statusMap[row.status] || { text: "未知", type: "info" };
+        return <el-tag type={s.type} size="small">{s.text}</el-tag>;
       }
     },
     {
       sortable: true,
-      label: "提问数量",
-      prop: "questionNumber"
-    },
-    {
-      sortable: true,
-      label: "解决数量",
-      prop: "resolveNumber"
-    },
-    {
-      sortable: true,
-      label: "用户满意度",
-      minWidth: 100,
-      prop: "satisfaction",
-      cellRenderer: ({ row }) => (
-        <div class="flex justify-center w-full">
-          <span class="flex items-center w-[60px]">
-            <span class="ml-auto mr-2">{row.satisfaction}%</span>
-            <iconifyIconOffline
-              icon={row.satisfaction > 98 ? Hearts : ThumbUp}
-              color="#e85f33"
-            />
-          </span>
-        </div>
-      )
-    },
-    {
-      sortable: true,
-      label: "统计日期",
-      prop: "date"
-    },
-    {
-      label: "操作",
-      fixed: "right",
-      slot: "operation"
+      label: "创建时间",
+      prop: "createTime",
+      minWidth: 130
     }
   ];
 
   /** 分页配置 */
-  const pagination = reactive<PaginationProps>({
+  const pagination = {
     pageSize: 10,
     currentPage: 1,
     layout: "prev, pager, next",
     total: 0,
-    align: "center"
-  });
-
-  function onCurrentChange(page: number) {
-    console.log("onCurrentChange", page);
-    loading.value = true;
-    delay(300).then(() => {
-      loading.value = false;
-    });
-  }
-
-  onMounted(() => {
-    dataList.value = tableData;
-    pagination.total = dataList.value.length;
-    loading.value = false;
-  });
+    align: "center" as const
+  };
 
   return {
     Empty,
     loading,
     columns,
-    dataList,
-    pagination,
-    onCurrentChange
+    pagination
   };
 }
